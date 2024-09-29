@@ -13,7 +13,7 @@ git clone https://github.com/Rodrigo-Munoz-Salas/AI_Image_Recognition.git
 docker build . -t "ai-recognition-image"
 
 # Run the docker container
-docker run -d -p 8501:8501 quick-draw-image
+docker run -d -p 8501:8501 ai-recognition-image
 
 ```
 Go to your local host at 8501 port: localhost:8501
