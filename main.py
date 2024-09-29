@@ -112,48 +112,58 @@ def main():
 
         # =========================================================== #
 
+        # Transforming the images
         transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.ToTensor(), # Converting pillow images to PyToech tensor
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) # (channels x height x width) Normalizing images with a mean of 0.5, std of 0.5 and 3 RGB channels
         ])
 
         # =========================================================== #
 
+        # Load CIFAR-10 training data and test data and apply transformations
         train_data = torchvision.datasets.CIFAR10(root='/data', train=True, transform=transform, download=True)
         test_data = torchvision.datasets.CIFAR10(root='/data', train=False, transform=transform, download=True)
 
+        # Create a DataLoader for training data with batch size of 32, shuffling data, and using 2 threads for loading
         train_loader = torch.utils.data.DataLoader(train_data, batch_size=32, shuffle=True, num_workers=2)
         test_loader = torch.utils.data.DataLoader(test_data, batch_size=32, shuffle=True, num_workers=2)
 
         # =========================================================== #
 
+        # Retrieve the index 0 image from the training dataset
         image, label = train_data[0]
 
         # =========================================================== #
 
+        # Print the size of the image tensor
         image.size()
 
         # =========================================================== #
 
+        # The class names for the CIFAR-10 (10 classes)
         class_name = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
         # =========================================================== #
 
+        # Defining the architecture of a Convolutional Neural Network (CNN)
         class NeuralNet(nn.Module):
 
             def __init__(self):
                 super().__init__()
 
+                # Making the convolutional layer
                 # """Can change number of feature map, kernel size, max pooling size, different channels, number of neurons but keep compatible"""
                 self.conv1 = nn.Conv2d(3, 12, 5) # (12 channels, 28 pixels, 28 pixels)
                 self.pool = nn.MaxPool2d(2, 2) # 2 x 2 pixels and will create 1 pixel out of it (12, 14, 14)
                 self.conv2 = nn.Conv2d(12, 24, 5) # (24, 10, 10) -> (24, 5, 5) -> Flatten (24 * 5 * 5)
+                # Fully connected layers
                 self.fc1 = nn.Linear(24 * 5 * 5, 120)
                 self.fc2 = nn.Linear(120, 84)
                 self.fc3 = nn.Linear(84, 10) 
 
             # """All this will be random in the beginning but will be trained as time goes by"""
             def forward(self, x): # Applies these layers on the output
+                # Define the forward pass (data flow through the layers)
                 x = self.pool(F.relu(self.conv1(x))) # F.relu Breaks linearity
                 x = self.pool(F.relu(self.conv2(x)))
                 x = torch.flatten(x, 1)
@@ -197,16 +207,19 @@ def main():
 
             # =========================================================== #
 
+        # Loading the pre-trained model
         net = NeuralNet()
-        net.load_state_dict(torch.load('trained_net.pth'))
+        net.load_state_dict(torch.load('trained_net.pth')) # Saving the model parameters in the pth file
 
         # =========================================================== #
 
+        # Counter for correct predictions and total test images
         correct = 0
         total = 0
 
         net.eval()
 
+        # Disable gradient calculation during evaluation
         with torch.no_grad():
             for data in test_loader:
                 images, labels = data
@@ -222,24 +235,24 @@ def main():
         # =========================================================== #
 
         if submitted_image is not None:  # Ensure submitted_image has been set
-            new_transform = transforms.Compose([
+            new_transform = transforms.Compose([ # Define transformations
                 transforms.Resize((32, 32)),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
             ])
 
             def load_image(image):
-                # image = Image.open(image_path)
                 image = new_transform(image)
                 image = image.unsqueeze(0)
                 return image
             
+            # List to store transformed images
             images = [load_image(submitted_image)]
 
-            net.eval()
+            net.eval() # Set the model to evaluation mode
             predicted_value = ''
             player_res = []
-            with torch.no_grad():
+            with torch.no_grad(): # Disable gradient calculation for prediction
                 for image in images:
                     output = net(image)
                     _, predicted = torch.max(output, 1)
