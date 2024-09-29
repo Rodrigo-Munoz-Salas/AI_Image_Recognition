@@ -33,7 +33,7 @@ def main():
             st.image(logo, width=400)
 
             # Slider for timer (15-90)
-            timer = st.slider("Set Timer (in seconds):", min_value=15, max_value=90, value=30)
+            # timer = st.slider("Set Timer (in seconds):", min_value=15, max_value=90, value=30)
 
             # Slider for number of players (1-8)
             num_players = st.slider("Set Number of Players:", min_value=1, max_value=8, value=4)
@@ -44,7 +44,7 @@ def main():
                 st.session_state.start_pressed = True
 
                 # Store the current value of the timer slider in session state
-                st.session_state.timer_duration = timer
+                # st.session_state.timer_duration = timer
 
                 # Store the current value of the number of players slider in session state
                 st.session_state.num_players = num_players
@@ -86,10 +86,26 @@ def main():
                 if image.mode == 'RGBA':
                     image = image.convert('RGB')
 
+                # Generate a unique filename using a counter or timestamp
+                if "image_count" not in st.session_state:
+                    st.session_state.image_count = 0  # Initialize the counter if it doesn't exist
+                
+                # Create a unique filename based on the counter
+                image_filename = f"drawing_{st.session_state.image_count}.jpg"
+
                 # Save the image to a BytesIO object as JPEG
                 buffer = io.BytesIO()
                 image.save(buffer, format="JPEG")  # Save as JPEG
                 buffer.seek(0)
+
+                # Store the image in session state
+                if "images" not in st.session_state:
+                    st.session_state.images = {}  # Initialize the dictionary if it doesn't exist
+                st.session_state.images[image_filename] = buffer.getvalue()  # Save image data with filename as key
+                
+                # Increment the counter for the next image
+                st.session_state.image_count += 1
+
 
                 # Display the submitted image at the bottom
                 # st.subheader("Your Submitted Drawing:")
@@ -97,17 +113,23 @@ def main():
                 
 
                 # Reset the timer to 30 seconds
-                st.session_state.timer_duration = st.session_state.timer_duration
+                # st.session_state.timer_duration = st.session_state.timer_duration
 
                 # Increment the current turn
                 st.current_turn = st.current_turn + 1
 
                 # Check if the current turn equals the number of players
-                if st.current_turn == st.session_state.num_players:
+                if st.current_turn >= st.session_state.num_players:
                     st.success("All players have submitted their drawings!")
+
                     # Perform any additional actions here, such as resetting the game or displaying results
                     st.session_state.start_pressed = False  # Reset the start button state
                     st.current_turn = 0  # Reset the turn counter
+
+                    # Optionally, display the list of saved images
+                    st.write("Saved Images:")
+                    for filename in st.session_state.images.keys():
+                        st.write(filename)
 
                 submitted_image = image  # Store the image for later display
 
@@ -115,18 +137,18 @@ def main():
                 st.warning("Please draw something before submitting.")
         
         # Input slider for the countdown duration
-        countdown_duration = st.slider("Set Countdown Timer (seconds):", min_value=1, max_value=90, value= st.session_state.timer_duration)
+        # countdown_duration = st.slider("Set Countdown Timer (seconds):", min_value=1, max_value=90, value= st.session_state.timer_duration)
 
-        countdown_placeholder = st.empty()
+        # countdown_placeholder = st.empty()
 
-        for i in range(countdown_duration, 0, -1):
-            # Update the countdown number
-            countdown_placeholder.markdown(f"## Time Remaining: {i} seconds")
-            time.sleep(1)
+        # for i in range(countdown_duration, 0, -1):
+            # # Update the countdown number
+            # countdown_placeholder.markdown(f"## Time Remaining: {i} seconds")
+            # time.sleep(1)
 
         # Increment the current turn
             st.current_turn = st.current_turn + 1
-            st.session_state.timer_duration = st.session_state.timer_duration
+            # st.session_state.timer_duration = st.session_state.timer_duration
             
 
         # =========================================================== #
