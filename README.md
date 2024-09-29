@@ -10,10 +10,10 @@ This project uses the PyTorch Chainguard image as a base image. This image is fr
 git clone https://github.com/Rodrigo-Munoz-Salas/AI_Image_Recognition.git
 
 # Build the Docker image (from Chainguard images)
-docker build . -t "ai-recognition-image"
+docker build . -t "ai-image-recognition"
 
 # Run the docker container
-docker run -d -p 8501:8501 ai-recognition-image
+docker run -d -p 8501:8501 ai-image-recognition
 
 ```
 Go to your local host at 8501 port: localhost:8501
