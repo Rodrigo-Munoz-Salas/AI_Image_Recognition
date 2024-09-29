@@ -76,6 +76,9 @@ def main():
             key="canvas"
         )
 
+        # Initialize submitted_image as None to avoid UnboundLocalError
+        submitted_image = None
+
         # Button to submit the drawing
         if st.button("Submit Drawing"):
             if canvas_result.image_data is not None:
@@ -87,24 +90,24 @@ def main():
                     image = image.convert('RGB')
 
                 # Generate a unique filename using a counter or timestamp
-                if "image_count" not in st.session_state:
-                    st.session_state.image_count = 0  # Initialize the counter if it doesn't exist
+                # if "image_count" not in st.session_state:
+                #     st.session_state.image_count = 0  # Initialize the counter if it doesn't exist
                 
-                # Create a unique filename based on the counter
-                image_filename = f"drawing_{st.session_state.image_count}.jpg"
+                # # Create a unique filename based on the counter
+                # image_filename = f"drawing_{st.session_state.image_count}.jpg"
 
-                # Save the image to a BytesIO object as JPEG
-                buffer = io.BytesIO()
-                image.save(buffer, format="JPEG")  # Save as JPEG
-                buffer.seek(0)
+                # # Save the image to a BytesIO object as JPEG
+                # buffer = io.BytesIO()
+                # image.save(buffer, format="JPEG")  # Save as JPEG
+                # buffer.seek(0)
 
-                # Store the image in session state
-                if "images" not in st.session_state:
-                    st.session_state.images = {}  # Initialize the dictionary if it doesn't exist
-                st.session_state.images[image_filename] = buffer.getvalue()  # Save image data with filename as key
+                # # Store the image in session state
+                # if "images" not in st.session_state:
+                #     st.session_state.images = {}  # Initialize the dictionary if it doesn't exist
+                # st.session_state.images[image_filename] = buffer.getvalue()  # Save image data with filename as key
                 
                 # Increment the counter for the next image
-                st.session_state.image_count += 1
+                # st.session_state.image_count += 1
 
 
                 # Display the submitted image at the bottom
@@ -126,10 +129,10 @@ def main():
                     st.session_state.start_pressed = False  # Reset the start button state
                     st.current_turn = 0  # Reset the turn counter
 
-                    # Optionally, display the list of saved images
-                    st.write("Saved Images:")
-                    for filename in st.session_state.images.keys():
-                        st.write(filename)
+                    # # Optionally, display the list of saved images
+                    # st.write("Saved Images:")
+                    # for filename in st.session_state.images.keys():
+                    #     st.write(filename)
 
                 submitted_image = image  # Store the image for later display
 
@@ -262,29 +265,34 @@ def main():
 
         # =========================================================== #
 
-        new_transform = transforms.Compose([
-            transforms.Resize((32, 32)),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
+        if submitted_image is not None:  # Ensure submitted_image has been set
+            new_transform = transforms.Compose([
+                transforms.Resize((32, 32)),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            ])
 
-        def load_image(image):
-            # image = Image.open(image_path)
-            image = new_transform(image)
-            image = image.unsqueeze(0)
-            return image
-        
-        images = [load_image(submitted_image)]
+            def load_image(image):
+                # image = Image.open(image_path)
+                image = new_transform(image)
+                image = image.unsqueeze(0)
+                return image
+            
+            images = [load_image(submitted_image)]
 
-        net.eval()
-        predicted_value = ''
-        with torch.no_grad():
-            for image in images:
-                output = net(image)
-                _, predicted = torch.max(output, 1)
-                print(f'Prediction: {class_name[predicted.item()]}')
-                predicted_value = class_name[predicted.item()]
-                st.write(predicted_value)
+            net.eval()
+            predicted_value = ''
+            player_res = []
+            with torch.no_grad():
+                for image in images:
+                    output = net(image)
+                    _, predicted = torch.max(output, 1)
+                    print(f'Prediction: {class_name[predicted.item()]}')
+                    predicted_value = class_name[predicted.item()]
+                    player_res.append(predicted_value)
+                    # st.write(predicted_value)
+            for res in player_res:
+                st.write(f'The players drawing is probably a {res}')        
 
 
 if __name__ == '__main__':
