@@ -220,7 +220,9 @@ def main():
                     output = net(image)
                     _, predicted = torch.max(output, 1)
                     print(f'Prediction: {class_name[predicted.item()]}')
+                    print(class_name[predicted.item()])
                     predicted_value = class_name[predicted.item()]
+                    st.write(predicted_value)
 
 
 
