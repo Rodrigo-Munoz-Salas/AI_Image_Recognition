@@ -29,7 +29,7 @@ def main():
     if not st.session_state.start_pressed:
         with col2:
             # Display the logo
-            logo = Image.open("../views/logo.png")
+            logo = Image.open("./views/logo.png")
             st.image(logo, width=400)
 
             # Slider for timer (15-90)
@@ -261,7 +261,6 @@ def main():
                 output = net(image)
                 _, predicted = torch.max(output, 1)
                 print(f'Prediction: {class_name[predicted.item()]}')
-                print(class_name[predicted.item()])
                 predicted_value = class_name[predicted.item()]
                 st.write(predicted_value)
 
