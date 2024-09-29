@@ -6,6 +6,7 @@ USER root
 # Copy the files into the docker repo
 COPY main.py ./
 COPY trained_net.pth ./
+COPY views/ ./views/
 
 RUN python -m venv /app/venv
 RUN pip install --no-cache-dir streamlit streamlit-drawable-canvas
