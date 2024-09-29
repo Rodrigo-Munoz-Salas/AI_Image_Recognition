@@ -265,6 +265,5 @@ def main():
                 st.write(predicted_value)
 
 
-
 if __name__ == '__main__':
     main()
