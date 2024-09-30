@@ -8,12 +8,10 @@ COPY main.py ./
 COPY trained_net.pth ./
 COPY views/ ./views/
 
+# Install streamlit package and set path environment
 RUN python -m venv /app/venv
 RUN pip install --no-cache-dir streamlit streamlit-drawable-canvas
 ENV PATH="$PATH:/app/venv/bin"
-
-# Install the Streamlit package
-#RUN pip install streamlit
 
 # entrypoint to run the app
 ENTRYPOINT ["streamlit", "run", "main.py"]
